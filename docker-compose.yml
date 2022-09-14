@@ -1,0 +1,32 @@
+version: "3.7"
+
+services:
+  hub:
+    container_name: ninjascout-hub
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    volumes:
+      - ./:/usr/src/app/test
+    networks:
+      - default
+    ports:
+      - 5001:5001
+    environment:
+      NODE_ENV: "development"
+  db:
+    container_name: ninjascout-postgres
+    image: postgres:13
+    networks:
+      - default
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=ninjascout
+
+networks:
+  default:
+    # external:
+    name: ninja

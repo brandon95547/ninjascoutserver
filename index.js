@@ -3,16 +3,18 @@ const port = 5001
 const express = require('express')
 const fs = require('fs')
 const app = express()
+const cors = require('cors');
+app.use(cors({origin: true, credentials: true}))
 const { parse } = require('csv-parse')
 require('dotenv').config()
 
 const csvPath = './ebay_sales.csv'
 
 const config = {
-  user: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
-  host: process.env.PUBLIC_IP,
+  user: process.env.POSTGRES_USER,
+  password: process.env.POSTGRES_PASSWORD,
+  database: process.env.POSTGRES_DB,
+  host: process.env.POSTGRES_HOST,
   port: 5432,
 };
 
@@ -39,14 +41,14 @@ const seedEbaySales = (res) => {
       knex('ebay_sales').where({ ebay_sales_itemid })
         .then(row => {
           if (row.length) {
-            console.log('found')
+            // console.log('found')
           } else {
             knex('ebay_sales').insert({
-              ebay_sales_title,
-              ebay_sales_condition,
-              ebay_sales_cat,
+              ebay_sales_title: ebay_sales_title.replace(/[^\d\w ]/g, ""),
+              ebay_sales_condition: ebay_sales_condition.replace(/[^\d\w ]/g, ""),
+              ebay_sales_cat: ebay_sales_cat.replace(/[^\d\w ]/g, ""),
               ebay_sales_itemid: ebay_sales_itemid.replace(/[^\d]/g, ""),
-              ebay_sales_price: ebay_sales_price.replace(/[^\d]/g, ""),
+              ebay_sales_price: ebay_sales_price.replace(/[^\d.]/g, ""),
               ebay_sales_date,
               active: 1
             })
@@ -79,12 +81,13 @@ app.get('/seed', (req, res) => {
 app.get('/sales', (req, res) => {
   const keyword = req.query.keyword
   // use triads to provide a select query that returns closest match since people don't always type in exact titles
-  return knex.raw(`SELECT * FROM ebay_sales WHERE SIMILARITY(ebay_sales_title,'${keyword}') > 0.2;`)
+  return knex.raw(`SELECT * FROM ebay_sales WHERE SIMILARITY(ebay_sales_title,'${keyword}') > 0.25;`)
     .then(row => {
-      return res.send({ row })
+      return res.send({ row: row.rows })
     })
     .catch(err => {
-      res.sendStatus(500)
+      res.send(err)
+      // res.sendStatus(500)
       throw err
     })
   // res.sendFile('index.html', {root: __dirname})
