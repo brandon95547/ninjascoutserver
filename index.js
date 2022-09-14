@@ -80,8 +80,15 @@ app.get('/seed', (req, res) => {
 
 app.get('/sales', (req, res) => {
   const keyword = req.query.keyword
-  // use triads to provide a select query that returns closest match since people don't always type in exact titles
-  return knex.raw(`SELECT * FROM ebay_sales WHERE SIMILARITY(ebay_sales_title,'${keyword}') > 0.25;`)
+  const chunks = keyword.split(' ')
+  let selectCondition = ''
+  chunks.forEach((element, index) => {
+    if (index !== 0) {
+      selectCondition += ` and LOWER(ebay_sales_title) like '%${element}%'`
+    }
+  });
+  const sql = `SELECT * FROM ebay_sales WHERE LOWER(ebay_sales_title) like '%${chunks[0]}%'${selectCondition}`
+  return knex.raw(sql)
     .then(row => {
       return res.send({ row: row.rows })
     })

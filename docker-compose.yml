@@ -17,6 +17,8 @@ services:
   db:
     container_name: ninjascout-postgres
     image: postgres:13
+    volumes:
+      - db-data:/var/lib/postgresql/data
     networks:
       - default
     ports:
@@ -25,6 +27,8 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=ninjascout
+volumes:
+  db-data:
 
 networks:
   default:

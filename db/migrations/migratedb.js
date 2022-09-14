@@ -1,5 +1,5 @@
 exports.up = function (knex) {
-  return knex.raw('CREATE EXTENSION fuzzystrmatch')
+  return knex.raw('CREATE EXTENSION pg_trgm;')
     .then(function () {
       return knex.raw('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"')
       .then(function () {
@@ -20,8 +20,8 @@ exports.up = function (knex) {
 }
 
 exports.down = function (knex) {
-  return knex.schema.dropTable('leads')
+  /* return knex.schema.dropTable('leads')
     .then(function () {
       return knex.raw('DROP EXTENSION IF EXISTS "uuid-ossp"')
-    })
+    }) */
 }
