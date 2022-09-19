@@ -80,6 +80,7 @@ app.get('/seed', (req, res) => {
 
 app.get('/sales', (req, res) => {
   const keyword = req.query.keyword
+  console.log(keyword)
   const chunks = keyword.split(' ')
   let selectCondition = ''
   chunks.forEach((element, index) => {
